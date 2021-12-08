@@ -4,10 +4,13 @@ import Data.Function
 splitOn :: (Eq a) => a -> [a] -> [[a]]
 splitOn x ys = filter (not . any (== x)) . groupBy ((==) `on` (== x)) $ ys
 
-checkNumbers :: (Eq a) => [a] -> [[a]] -> Bool
-checkNumbers l b = case result of Just _ -> True
-                                  Nothing -> False
+checkNumbersH :: (Eq a) => [a] -> [[a]] -> Bool
+checkNumbersH l b = case result of Just _ -> True
+                                   Nothing -> False
   where result = find (\x -> all (`elem` l) x) b
+
+checkNumbers :: (Eq a) => [a] -> [[a]] -> Bool
+checkNumbers l b = (checkNumbersH l b) || (checkNumbersH l (transpose b))
 
 checkAllBoardsStep :: (Eq a) => [[[a]]] -> (Maybe [[a]], [a]) -> [a] -> (Maybe [[a]], [a])
 checkAllBoardsStep _ all@(Just x, l) _ = all
