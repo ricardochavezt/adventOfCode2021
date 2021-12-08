@@ -1,8 +1,6 @@
 import Data.List
 import Data.Function
-
-splitOn :: (Eq a) => a -> [a] -> [[a]]
-splitOn x ys = filter (not . any (== x)) . groupBy ((==) `on` (== x)) $ ys
+import Common
 
 checkNumbersH :: (Eq a) => [a] -> [[a]] -> Bool
 checkNumbersH l b = case result of Just _ -> True
