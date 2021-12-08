@@ -16,6 +16,12 @@ checkAllBoardsStep :: (Eq a) => [[[a]]] -> (Maybe [[a]], [a]) -> [a] -> (Maybe [
 checkAllBoardsStep _ all@(Just x, l) _ = all
 checkAllBoardsStep bs (acc, _) l = ((find (checkNumbers l) bs), l)
 
+checkAllBoardsStep' :: (Eq a) => ([[[a]]], [a], [[[a]]]) -> [a] -> ([[[a]]], [a], [[[a]]])
+checkAllBoardsStep' (wbs, wn, bs) l =
+  let (winners, notWinners) = partition (checkNumbers l) bs
+  in case winners of [] -> (wbs, wn, bs)
+                     winners -> (winners, l, (bs \\ winners))
+
 sumUnmarked :: (Num a, Eq a) => Maybe [[a]] -> [a] -> a
 sumUnmarked Nothing _ = 0
 sumUnmarked (Just wb) wn = sum $ concatMap (filter (\x -> not (x `elem` wn))) wb
@@ -28,4 +34,11 @@ main = do
 
   let (winnerBoard, winnerNums) = foldl (checkAllBoardsStep boards) (Nothing, []) $ inits numberList
 
+  putStrLn "Part 1:\n------"
   print $ (sumUnmarked winnerBoard winnerNums) * (last winnerNums)
+
+  let (lastWinnerBoards, lastWinnerNums, _) = foldl checkAllBoardsStep' ([], [], boards) $ inits numberList
+
+  putStrLn "\nPart 2:\n------"
+  putStrLn $ "Possible solutions (" ++ (show $ length lastWinnerBoards) ++ "): "
+  putStrLn $ unlines $ map (\b -> show ((sumUnmarked (Just b) lastWinnerNums) * (last lastWinnerNums))) lastWinnerBoards
