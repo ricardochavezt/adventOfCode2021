@@ -1,13 +1,18 @@
 import Common
+import Data.List
+import qualified Data.Map as Map
 
-calculateNextGeneration :: [Int] -> [Int]
-calculateNextGeneration xs =
-  let old = map (\x -> if x == 0 then 6 else (x-1)) xs
-      new = map (const 8) (filter (\y -> y == 0) xs)
-  in old ++ new
+calculateNextGenerationCounts :: Map.Map Int Int -> Map.Map Int Int
+calculateNextGenerationCounts m = Map.fromList $ map (\x -> (x, calc x)) [0..8]
+  where calc 8 = Map.findWithDefault 0 0 m
+        calc 6 = (Map.findWithDefault 0 7 m) + (Map.findWithDefault 0 0 m)
+        calc x = Map.findWithDefault 0 (x+1) m
 
 main = do
   input <- getContents
   let initialPopulation = map read $ splitOn ',' (head (lines input)) :: [Int]
-  let finalPopulation = foldl (\acc _ -> calculateNextGeneration acc) initialPopulation [1..80]
-  putStrLn $ "After 80 days: " ++ (show (length finalPopulation))
+  let initialPopulationCounts = Map.fromList $ map (\l@(x:xs) -> (x, length l)) . group . sort $ initialPopulation
+  let finalPopulationCounts = foldl (\acc _ -> calculateNextGenerationCounts acc) initialPopulationCounts [1..80]
+  putStrLn $ "After 80 days: " ++ (show (sum (Map.elems finalPopulationCounts)))
+  let finalPopulationCounts' = foldl (\acc _ -> calculateNextGenerationCounts acc) finalPopulationCounts [81..256]
+  putStrLn $ "After 256 days: " ++ (show (sum (Map.elems finalPopulationCounts')))
